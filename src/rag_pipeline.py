@@ -52,26 +52,36 @@ def checkDatabaseExist(dense_embeddings, late_interaction_embeddings):
             }
         )
 
-def ingest_document(doc_name: str, text_chunks: list, type: str = "text"):
-    
-    dense_embeddings = list(dense_embedding_model.embed(text_chunks))
-    bm25_embeddings = list(bm25_embedding_model.embed(text_chunks))
-    late_interaction_embeddings = list(late_interaction_embedding_model.embed(text_chunks))
+def ingest_document(documents: list):
+    text_only = [doc['content'] for doc in documents]
+
+    dense_embeddings = list(dense_embedding_model.embed(text_only))
+    bm25_embeddings = list(bm25_embedding_model.embed(text_only))
+    late_interaction_embeddings = list(late_interaction_embedding_model.embed(text_only))
     checkDatabaseExist(dense_embeddings, late_interaction_embeddings)
 
     points = []
-    print(f"INGESTING DOCUMENTSSSS\n  {text_chunks}", flush=True)
-    if len(text_chunks) == 0:
+    # print(f"INGESTING DOCUMENTSSSS\n  {documents}", flush=True)
+    if len(documents) == 0:
         return 0
-    for idx, (dense_embedding, bm25_embedding, late_interaction_embedding, doc) in enumerate(zip(dense_embeddings, bm25_embeddings, late_interaction_embeddings, text_chunks)):
+    # Assuming 'text_chunks' is now a list of dictionaries 
+    # from the 'process_csv_for_rag' function we discussed earlier.
+
+    for idx, item in enumerate(zip(dense_embeddings, bm25_embeddings, late_interaction_embeddings, documents)):
+        dense, bm25, late, data = item # 'data' is now {'content': '...', 'metadata': {...}}
+        
         point = PointStruct(
             id=str(uuid.uuid4()),
             vector={
-                "all-MiniLM-L6-v2": dense_embedding,
-                "bm25": bm25_embedding.as_object(),
-                "colbertv2.0": late_interaction_embedding,
+                "all-MiniLM-L6-v2": dense,
+                "bm25": bm25.as_object(),
+                "colbertv2.0": late,
             },
-            payload={"text": doc, "doc_name": doc_name, "doc_type": type}
+            # ADD THE METADATA HERE!
+            payload={
+                "text": data['content'], 
+                **data['metadata'] # This unpacks CSV columns into the payload
+            }
         )
         points.append(point)
 
@@ -114,40 +124,41 @@ def query_rag(query: str, top_k: int = 7) -> str:
     
     print("FINISH QUERYing points!!!!!")
 
-
+    context_list = []
     list_of_scored_points = [tups for scored_points in result for tups in scored_points][1]
 
     print(f"\n\n{list_of_scored_points}\n\n")
 
-    context = "\n\n".join([f"text: {text.payload["text"]}, file: {text.payload["doc_name"]}" for text in list_of_scored_points])
+    for point in list_of_scored_points:
+        text = point.payload.get("text", "No text content")
+        doc_name = point.payload.get("doc_name", "Unknown File")
+        context_list.append(f"Source: {doc_name}\nContent: {text}")
 
+    context = "\n\n---\n\n".join(context_list)
 
-    print(f"ContextSTTTTT\n\n{context}\n\n")
-
+    # 6. Final Prompt
     prompt = f"""
-    You are an assistant answering based on provided context.
+    You are a Senior Decision Intelligence Agent. Your goal is to provide actionable insights based ON ONLY the provided data context.
 
-    Instructions:
-    - Use ALL relevant information from the context
-    - Provide a COMPLETE answer
-    - Do not omit important details
-    - If the answer spans multiple parts, include all of them
-    - Answer only if the context is relevant else say you don't know
-    - Answer don't know if no context is provided
-
-    Context:
+    ### CONTEXT DATA
+    The following records were retrieved from our vector database (Qdrant):
     {context}
-    
-    Question: {query}
-    
-    show the doc_name at the end of the answer as reference - there can be multiple doc_names in the form of doc_name: document name.
-    
-    Answer:
+
+    ### ANALYSIS GUIDELINES
+    1. EVIDENCE-BASED: Every claim must be backed by a specific value or row from the context.
+    2. QUANTIFY: Use numbers, percentages, and dates from the data.
+    3. LOGIC GAP: If the data is insufficient to make a decision, clearly state what information is missing.
+    4. ACTIONABLE: Conclude with a "Recommended Next Step."
+
+    ### OUTPUT FORMAT
+    1. **Executive Summary**: (2 sentences max)
+    2. **Key Data Points Found**: (Bullet points)
+    3. **Reasoning & Intelligence**: (How the data leads to the decision)
+    4. **Final Recommendation**: (The "Why" and "How")    
     """
 
-    response = llm.invoke(prompt)
-
-    return response
+    # 7. Get AI Insight
+    return get_decision_insight(prompt)
 
 
 def get_decision_insight(data_summary):
@@ -158,6 +169,9 @@ def get_decision_insight(data_summary):
     )
     
     return response.text
+
+def closeQdrant():
+    qdrant.close()
 
 if __name__ == "__main__" :
     try:

@@ -1,4 +1,7 @@
 # Local environment
 venv/*
-
+src/Data/*
+meta.json
+__pycache__/*
 .env
+*.pyc

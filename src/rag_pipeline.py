@@ -19,7 +19,9 @@ bm25_embedding_model = SparseTextEmbedding("Qdrant/bm25")
 late_interaction_embedding_model = LateInteractionTextEmbedding("colbert-ir/colbertv2.0")
 dense_embedding_model = TextEmbedding("sentence-transformers/all-MiniLM-L6-v2")
 
-# qdrant = QdrantClient(host="qdrant", port=6333)
+
+# Ensure the directory path exists before Qdrant tries to use it
+os.makedirs("src/Data", exist_ok=True)
 qdrant = QdrantClient(path="src/Data")
 COLLECTION_NAME = "UMH26_RAG_Docs"
 

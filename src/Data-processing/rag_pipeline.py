@@ -4,18 +4,28 @@ from langchain_qdrant import QdrantVectorStore
 from fastembed import TextEmbedding, SparseTextEmbedding, LateInteractionTextEmbedding
 import uuid
 from datetime import datetime
+import os
+from dotenv import load_dotenv
+from google import genai
 
+# 1. Load your key safely from the .env file
+load_dotenv()
+API_KEY = os.getenv("GEMINI_API_KEY")
+
+# 2. Initialize the Client
+client = genai.Client(api_key=API_KEY)
 
 bm25_embedding_model = SparseTextEmbedding("Qdrant/bm25")
 late_interaction_embedding_model = LateInteractionTextEmbedding("colbert-ir/colbertv2.0")
 dense_embedding_model = TextEmbedding("sentence-transformers/all-MiniLM-L6-v2")
 
-qdrant = QdrantClient(host="qdrant", port=6333)
+# qdrant = QdrantClient(host="qdrant", port=6333)
+qdrant = QdrantClient(path="src/Data")
 COLLECTION_NAME = "UMH26_RAG_Docs"
 
-#remember to remove for final work
-if qdrant.collection_exists(COLLECTION_NAME):
-    qdrant.delete_collection(collection_name=COLLECTION_NAME)
+# #remember to remove for final work
+# if qdrant.collection_exists(COLLECTION_NAME):
+#     qdrant.delete_collection(collection_name=COLLECTION_NAME)
 
 def checkDatabaseExist(dense_embeddings, late_interaction_embeddings):
     if not qdrant.collection_exists(COLLECTION_NAME):
@@ -139,3 +149,23 @@ def query_rag(query: str, top_k: int = 7) -> str:
 
     return response
 
+
+def get_decision_insight(data_summary):
+    # 3. Call the model (Flash is great for hackathons due to speed/low cost)
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=f"Analyze this data for decision intelligence: {data_summary}"
+    )
+    
+    return response.text
+
+if __name__ == "__main__" :
+    try:
+        checkDatabaseExist()
+        # 2. Your Hackathon Code Logic Here
+        # (Ingesting CSV, Searching, etc.)
+        print("Running analysis...")
+    finally:
+        # 3. Explicitly close the connection before the script ends
+        print("Closing Qdrant connection...")
+        qdrant.close()

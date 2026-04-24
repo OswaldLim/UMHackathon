@@ -1,2 +1,4 @@
 # Local environment
 venv/*
+
+.env

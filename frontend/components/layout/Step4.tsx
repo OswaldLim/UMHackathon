@@ -99,33 +99,103 @@ export default function Step4({ data, onChange }: Step4Props) {
     setMode("done");
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = e.target.files?.[0];
+
     if (!file) return;
-    if (!file.name.endsWith(".csv")) {
-      setUploadError("Please upload a CSV file (.csv)");
+
+    // Only allow CSV files
+    const isCsvByExtension = file.name.toLowerCase().endsWith(".csv");
+    const isCsvByType =
+      file.type === "text/csv" ||
+      file.type === "application/vnd.ms-excel" ||
+      file.type === "";
+
+    if (!isCsvByExtension || !isCsvByType) {
+      setUploadError("Only CSV files (.csv) are allowed.");
+      e.target.value = "";
       return;
     }
+
     setUploadError("");
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const text = ev.target?.result as string;
-      const lines = text.trim().split("\n").filter(Boolean);
-      if (lines.length < 2) {
-        setUploadError("CSV must have at least a header row and one data row.");
-        return;
+
+    try {
+      console.log("🚀 Uploading CSV to FastAPI...");
+
+      // Send file directly to FastAPI /api/ingest
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch(
+        "https://umhackathon-jm33.onrender.com/api/ingest",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      console.log("📡 Upload response status:", res.status);
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("❌ Upload failed:", errorText);
+        throw new Error("Failed to upload CSV file");
       }
-      const headers = lines[0].split(",").map((h) => h.trim().replace(/"/g, ""));
-      const rows: DataRow[] = lines.slice(1).map((line) => {
-        const vals = line.split(",").map((v) => v.trim().replace(/"/g, ""));
-        return Object.fromEntries(
-          headers.map((h, i) => [h, isNaN(Number(vals[i])) ? vals[i] : Number(vals[i])])
-        );
-      });
-      onChange({ userData: { source: "upload", headers, rows, fileName: file.name } });
-      setMode("done");
-    };
-    reader.readAsText(file);
+
+      const backendResponse = await res.json();
+      console.log("✅ Backend upload success:", backendResponse);
+
+      // Optional frontend preview of CSV data
+      const reader = new FileReader();
+
+      reader.onload = (ev) => {
+        const text = ev.target?.result as string;
+
+        const lines = text.trim().split("\n").filter(Boolean);
+
+        if (lines.length < 2) {
+          setUploadError(
+            "CSV must have at least a header row and one data row."
+          );
+          return;
+        }
+
+        const headers = lines[0]
+          .split(",")
+          .map((h) => h.trim().replace(/"/g, ""));
+
+        const rows: DataRow[] = lines.slice(1).map((line) => {
+          const vals = line
+            .split(",")
+            .map((v) => v.trim().replace(/"/g, ""));
+
+          return Object.fromEntries(
+            headers.map((h, i) => [
+              h,
+              isNaN(Number(vals[i])) ? vals[i] : Number(vals[i]),
+            ])
+          );
+        });
+
+        onChange({
+          userData: {
+            source: "upload",
+            headers,
+            rows,
+            fileName: file.name,
+          },
+        });
+
+        setMode("done");
+      };
+
+      reader.readAsText(file);
+    } catch (error) {
+      console.error("❌ Error uploading file:", error);
+      setUploadError("Failed to upload CSV file to backend.");
+    }
   };
 
   const handleSkip = () => {

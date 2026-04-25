@@ -147,6 +147,43 @@ export default function Step5({ metadata, onReset }: Step5Props) {
               </div>
             </OutputCard>
           )}
+          <OutputCard title="Prediction Confidence Score" accent="sky" icon="📊" delay={400}>
+            <div className="space-y-3">
+              {/* Score Row */}
+              <div className="flex items-center justify-between">
+                <span className="font-semibold">Confidence Score</span>
+                <span className="text-lg font-bold">
+                  {output?.confidence?.score !== null &&
+                  output?.confidence?.score !== undefined
+                    ? `${output.confidence.score}%`
+                    : "N/A"}
+                </span>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div
+                  className="bg-sky-600 h-3 rounded-full transition-all duration-500"
+                  style={{
+                    width:
+                      output?.confidence?.score != null
+                        ? `${output.confidence.score}%`
+                        : "0%",
+                  }}
+                />
+              </div>
+
+              {/* Reason */}
+              <div>
+                <p className="font-semibold">Reason</p>
+                <p>
+                  {output?.confidence?.reason ??
+                    "Confidence is unavailable because insufficient data was provided."}
+                </p>
+              </div>
+
+            </div>
+          </OutputCard>
           <button onClick={onReset}
             className="w-full mt-4 border-2 border-ink/10 rounded-xl py-3 font-body text-sm text-ink/50 hover:border-ink/30 hover:text-ink transition-all duration-200">
             Start a new analysis
@@ -156,3 +193,13 @@ export default function Step5({ metadata, onReset }: Step5Props) {
     </div>
   );
 }
+
+const getConfidenceColor = (score: number) => {
+  if (score >= 75)
+    return "bg-green-600 h-3 rounded-full transition-all duration-500";
+
+  if (score >= 50)
+    return "bg-yellow-500 h-3 rounded-full transition-all duration-500";
+
+  return "bg-red-500 h-3 rounded-full transition-all duration-500";
+};

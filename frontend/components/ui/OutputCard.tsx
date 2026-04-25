@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 
 interface OutputCardProps {
   title: string;
-  accent: "amber" | "sage" | "coral" | "ink";
+  accent: "amber" | "sage" | "coral" | "ink" | "sky";  
   icon: string;
   children: ReactNode;
   delay?: number;
@@ -15,6 +15,7 @@ const accentMap = {
   sage: "bg-sage-100 border-sage-400/40 text-sage-600",
   coral: "bg-coral-100 border-coral-400/40 text-coral-600",
   ink: "bg-white border-ink/10 text-ink",
+  sky: "bg-sky-50 border-sky-400/40 text-sky-600",
 };
 
 const tagMap = {
@@ -22,6 +23,7 @@ const tagMap = {
   sage: "bg-sage-400/20 text-sage-600",
   coral: "bg-coral-400/20 text-coral-600",
   ink: "bg-ink/10 text-ink",
+  sky: "bg-sky-400/20 text-sky-600",
 };
 
 export default function OutputCard({

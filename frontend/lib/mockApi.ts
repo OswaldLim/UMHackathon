@@ -47,6 +47,11 @@ export async function fetchInsights(
         verdict:
           "Option B is recommended for your time horizon and constraints. Revisit Option A after 3 months of stable revenue.",
       },
+
+      confidence: {
+        score: 50,
+        reason: "This section presents a confidence score that reflects how trustworthy the AI predictions are. The score is calculated based on the availability, accuracy, and consistency of user-provided inputs. Uploading structured data, such as sales statistics in CSV format, helps improve the reliability of predictions and results in a higher confidence score.",
+      },
     };
     throw new Error("Failed to fetch insights from backend");
   }
@@ -65,6 +70,3 @@ const typeMap: Record<string, string> = {
   manufacturing: "Manufacturing",
   other: "Business",
 };
-
-
-}

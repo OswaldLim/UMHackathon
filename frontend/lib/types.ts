@@ -21,6 +21,19 @@ export type GoalType =
   | "manage_cashflow"
   | "other";
 
+export interface DataRow {
+  [key: string]: string | number;
+}
+
+export interface UserData {
+  source: "recommended" | "manual" | "upload" | "skipped";
+  datasetId?: string;
+  datasetLabel?: string;
+  headers: string[];
+  rows: DataRow[];
+  fileName?: string;
+}
+
 export interface BusinessMetadata {
   businessName: string;
   businessType: BusinessType;
@@ -37,6 +50,7 @@ export interface BusinessMetadata {
   currentProblem: string;
   timeHorizon: string;
   constraints: string;
+  userData?: UserData;
 }
 
 export interface AIOutput {
@@ -47,4 +61,4 @@ export interface AIOutput {
   tradeoffs: { optionA: string; optionB: string; verdict: string } | null;
 }
 
-export type OnboardingStep = 1 | 2 | 3 | 4;
+export type OnboardingStep = 1 | 2 | 3 | 4 | 5;

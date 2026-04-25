@@ -50,99 +50,94 @@ def ensure_collection():
 def ingest_document(documents):
     """Embeds and uploads documents to Qdrant"""
     ensure_collection()
-    
-    # 1. Get embeddings from Gemini
-    # documents is expected to be a list of strings from your utils.py
+
     embed_result = client.models.embed_content(
         model="text-embedding-004",
         contents=documents
     )
-    
-    # 2. Prepare points for Qdrant
-    points = [
-        models.PointStruct(
-            id=str(uuid.uuid4()),
-            vector=item.values,
-            payload={"content": doc}
-        ) for doc, item in zip(documents, embed_result.embeddings)
-    ]
-    
-    # 3. Upload
-    qdrant_client.upsert(collection_name=COLLECTION_NAME, points=points)
+
+    embeddings = embed_result.embeddings
+
+    points = []
+
+    for doc, emb in zip(documents, embeddings):
+        vector = emb.values  # safe access
+
+        points.append(
+            models.PointStruct(
+                id=str(uuid.uuid4()),
+                vector=vector,
+                payload={
+                    "content": doc
+                }
+            )
+        )
+
+    qdrant_client.upsert(
+        collection_name=COLLECTION_NAME,
+        points=points
+    )
+
     return len(points)
+
 
 def query_rag(metadata: dict, query: str, top_k: int = 7) -> str:
     ensure_collection()
-    # Embed query
+
     query_embed = client.models.embed_content(
-            model="text-embedding-004",
-            contents=query
-        ).embeddings[0].values
+        model="text-embedding-004",
+        contents=query
+    ).embeddings[0].values
 
     result = qdrant_client.query_points(
-            COLLECTION_NAME,
-            query_vector=query_embed,
-            with_payload=True,
-            limit=10,
+        collection_name=COLLECTION_NAME,
+        query_vector=query_embed,
+        with_payload=True,
+        limit=top_k,
     )
-    
-    print("FINISH QUERYing points!!!!!")
 
-    context_list = []
-    list_of_scored_points = [tups for scored_points in result for tups in scored_points][1]
+    # ✅ FIXED RESULT PARSING
+    hits = result.points if hasattr(result, "points") else result
 
-    # print(f"\n\n{list_of_scored_points}\n\n")
+    context = "\n".join(
+        hit.payload.get("content", "") for hit in hits
+    )
 
-    context = "\n".join([hit.payload["content"] for hit in result])
-
-    # 6. Final Prompt
     prompt = f"""
-    You are a Senior Decision Intelligence Agent. Your goal is to provide actionable insights based ON ONLY the provided data context.
+You are a Senior Decision Intelligence Agent.
 
-    ### CONTEXT DATA
-    The following records were retrieved from our vector database (Qdrant):
-    {context}
+### CONTEXT DATA:
+{context}
 
-    The following records were user inputs
-    {metadata}
+### USER DATA:
+{metadata}
 
-    ### ANALYSIS GUIDELINES
-    1. EVIDENCE-BASED: Every claim must be backed by a specific value or row from the context.
-    2. QUANTIFY: Use numbers, percentages, and dates from the data.
-    3. LOGIC GAP: If the data is insufficient to make a decision, clearly state what information is missing.
-    4. ACTIONABLE: Conclude with a "Recommended Next Step."
+### TASK:
+Return ONLY valid JSON:
+{{
+  "insight": "",
+  "recommendations": [],
+  "reasoning": "",
+  "prediction": "",
+  "tradeoffs": {{}}
+}}
+"""
 
-    ### OUTPUT FORMAT RETURN ONLY VALID JSON FORMAT 
-
-    {
-        "insight": "",
-        "recommendations": [],
-        "reasoning": "",
-        "prediction": "",
-        "tradeoffs": {...}
-    }    
-    """
-
-    # 7. Get AI Insight
     return get_decision_insight(prompt)
 
-
 def get_decision_insight(prompt):
-    # 3. Call the model (Flash is great for hackathons due to speed/low cost)
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=prompt
     )
-    
-    return json.loads(response.text)
 
-# if __name__ == "__main__" :
-#     try:
-#         checkDatabaseExist()
-#         # 2. Your Hackathon Code Logic Here
-#         # (Ingesting CSV, Searching, etc.)
-#         print("Running analysis...")
-#     finally:
-#         # 3. Explicitly close the connection before the script ends
-#         print("Closing Qdrant connection...")
-#         qdrant.close()
+    text = response.text
+
+    # 🔥 SAFE JSON CLEANING
+    text = text.strip()
+
+    # remove markdown blocks if any
+    if "```" in text:
+        text = text.replace("```json", "").replace("```", "")
+
+    return json.loads(text)

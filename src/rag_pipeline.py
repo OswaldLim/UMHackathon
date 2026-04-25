@@ -7,6 +7,7 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 from google import genai
+import json
 
 # 1. Load your key safely from the .env file
 load_dotenv()
@@ -73,7 +74,7 @@ def ingest_document(documents):
     qdrant_client.upsert(collection_name=COLLECTION_NAME, points=points)
     return len(points)
 
-def query_rag(query: str, top_k: int = 7) -> str:
+def query_rag(metadata: dict, query: str, top_k: int = 7) -> str:
     # Embed query
     query_embed = client.models.embed_content(
             model="text-embedding-004",
@@ -104,17 +105,24 @@ def query_rag(query: str, top_k: int = 7) -> str:
     The following records were retrieved from our vector database (Qdrant):
     {context}
 
+    The following records were user inputs
+    {metadata}
+
     ### ANALYSIS GUIDELINES
     1. EVIDENCE-BASED: Every claim must be backed by a specific value or row from the context.
     2. QUANTIFY: Use numbers, percentages, and dates from the data.
     3. LOGIC GAP: If the data is insufficient to make a decision, clearly state what information is missing.
     4. ACTIONABLE: Conclude with a "Recommended Next Step."
 
-    ### OUTPUT FORMAT
-    1. **Executive Summary**: (2 sentences max)
-    2. **Key Data Points Found**: (Bullet points)
-    3. **Reasoning & Intelligence**: (How the data leads to the decision)
-    4. **Final Recommendation**: (The "Why" and "How")    
+    ### OUTPUT FORMAT RETURN ONLY VALID JSON FORMAT 
+
+    {
+        "insight": "",
+        "recommendations": [],
+        "reasoning": "",
+        "prediction": "",
+        "tradeoffs": {...}
+    }    
     """
 
     # 7. Get AI Insight
@@ -128,7 +136,7 @@ def get_decision_insight(prompt):
         contents=prompt
     )
     
-    return response.text
+    return json.loads(response.text)
 
 # if __name__ == "__main__" :
 #     try:

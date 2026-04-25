@@ -55,8 +55,8 @@ async def ingest(file: UploadFile = File(...)):
 async def handle_query(request: QueryRequest):
     try:
         # Call your existing query_rag function
-        answer = rag_pipeline.query_rag(request.prompt)
-        return {"answer": answer}
+        result = rag_pipeline.query_rag(request.prompt)
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

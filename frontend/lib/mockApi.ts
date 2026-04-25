@@ -4,14 +4,14 @@ export async function fetchInsights(
   metadata: BusinessMetadata,
   question: string
 ): Promise<AIOutput> {
-  const res = await fetch("http://localhost:8000/queryrag", {
+  const res = await fetch("http://localhost:8000/api/query", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      metadata,
-      question,
+      metadata: metadata,
+      prompt: question,
     }),
   });
 

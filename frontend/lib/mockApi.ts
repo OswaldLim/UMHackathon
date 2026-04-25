@@ -48,7 +48,6 @@ export async function fetchInsights(
           "Option B is recommended for your time horizon and constraints. Revisit Option A after 3 months of stable revenue.",
       },
     };
-    throw new Error("Failed to fetch insights from backend");
   }
 
   const data: AIOutput = await res.json();

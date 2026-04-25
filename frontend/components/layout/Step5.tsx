@@ -34,7 +34,9 @@ export default function Step5({ metadata, onReset }: Step5Props) {
     setAsked(true);
     setOutput(null);
     try {
+      console.log("TRYING TO FETCH FASTAPI QUERY")
       const result = await fetchInsights(metadata as BusinessMetadata, finalQ);
+      console.log("AFTER FETCHING QUERY")
       setOutput(result);
     } catch (e) {
       console.error(e);

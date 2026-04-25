@@ -52,7 +52,7 @@ export default function OutputCard({
           {title}
         </span>
       </div>
-      <div className="font-body text-sm leading-relaxed text-ink/80">
+      <div className="font-body text-sm leading-relaxed text-ink/80 text-justify">
         {children}
       </div>
     </div>

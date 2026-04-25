@@ -1,7 +1,4 @@
 from qdrant_client import QdrantClient, models
-from qdrant_client.models import PointStruct
-from langchain_qdrant import QdrantVectorStore
-from fastembed import TextEmbedding, SparseTextEmbedding, LateInteractionTextEmbedding
 import uuid
 from datetime import datetime
 import os

@@ -1,17 +1,12 @@
-How to Use
+Web-app link:
+https://um-hackathon-ljnurhia0-oswaldlims-projects.vercel.app/
 
-Steps
-1. Run in terminal:
-   - python -m venv venv
-   - venv/Script/activate
-   - pip install -r requirements.txt
-
-2. After finish installing libraries, create a .env file in the root folder. Inside the .env file input your personal Gemini API key in the format of GEMINI_API_KEY=<"Your API Key">.
-Example of the .env file:
-![alt text](image.png)
-
-3. Run main.py. You'll have to wait a while when running for the first time due to it downloading the QDrant embedding models but it will run smoothly afterwards.
+The link above will bring you to our web app where the starting ui should look like
+![alt text](image-1.png)
 
 
 Presentation Deck Link
 https://www.pi.inc/docs/438852282430142?share_token=C4GGXCIN3KLIE
+
+Demo Video Link
+https://drive.google.com/file/d/1uxOjTtSOXXS-viXZYbM0UmpklOdKg9a7/view?usp=sharing

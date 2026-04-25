@@ -22,4 +22,3 @@ python-multipart
 
 # Utilities
 pydantic
-uuid

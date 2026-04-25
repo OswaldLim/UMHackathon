@@ -4,6 +4,10 @@ export async function fetchInsights(
   metadata: BusinessMetadata,
   question: string
 ): Promise<AIOutput> {
+  console.log("🚀 Calling FastAPI...");
+  console.log("📦 Metadata:", metadata);
+  console.log("❓ Question:", question);
+
   const res = await fetch("https://umhackathon-jm33.onrender.com/api/query", {
     method: "POST",
     headers: {
@@ -14,6 +18,9 @@ export async function fetchInsights(
       prompt: question,
     }),
   });
+
+  console.log("📡 Response status:", res.status);
+  console.log("📡 Response ok?:", res.ok);
 
   if (!res.ok) {
     throw new Error("Failed to fetch insights from backend");

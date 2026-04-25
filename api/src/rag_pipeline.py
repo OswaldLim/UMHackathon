@@ -57,7 +57,7 @@ RAW_SCHEMA = {
                     ", then the reasoning logic behind it "
                     ", and conclude with the expected business impact "
                     "where all of these information based on the explainability rules given "
-                    "Write in plain business language. Do not use bullet points or lists within the paragraph."
+                    "Write in plain business language. Do not use bullet points, colon or lists within the paragraph."
                 )
             }
         },

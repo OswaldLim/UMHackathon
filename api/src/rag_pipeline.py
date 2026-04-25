@@ -72,6 +72,7 @@ def ingest_document(documents):
     return len(points)
 
 def query_rag(metadata: dict, query: str, top_k: int = 7) -> str:
+    ensure_collection()
     # Embed query
     query_embed = client.models.embed_content(
             model="text-embedding-004",

@@ -11,6 +11,8 @@ from google import genai
 # 1. Load your key safely from the .env file
 load_dotenv()
 API_KEY = os.getenv("GEMINI_API_KEY")
+QDRANT_API_KEY=os.getenv("QDRANT_API_KEY")
+QDRANT_URL=os.getenv("QDRANT_URL")
 
 # 2. Initialize the Client
 client = genai.Client(api_key=API_KEY)
@@ -21,8 +23,16 @@ dense_embedding_model = TextEmbedding("sentence-transformers/all-MiniLM-L6-v2")
 
 
 # Ensure the directory path exists before Qdrant tries to use it
-os.makedirs("src/Data", exist_ok=True)
-qdrant = QdrantClient(path="src/Data")
+# os.makedirs("src/Data", exist_ok=True)
+# qdrant = QdrantClient(path="src/Data")
+
+qdrant_client = QdrantClient(
+    url=QDRANT_URL, 
+    api_key=QDRANT_API_KEY,
+)
+
+print(qdrant_client.get_collections())
+
 COLLECTION_NAME = "UMH26_RAG_Docs"
 
 # #remember to remove for final work

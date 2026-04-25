@@ -8,6 +8,7 @@ app = FastAPI()
 
 # Define the request structure
 class QueryRequest(BaseModel):
+    metadata: dict
     prompt: str
 
 @app.get("/")

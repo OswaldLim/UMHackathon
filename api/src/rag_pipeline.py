@@ -54,9 +54,9 @@ RAW_SCHEMA = {
                 "description": (
                     "Each recommendation must be written as a structured paragraph in this exact format: "
                     "Start with a bolded action title, followed by the data signals that triggered it "
-                    "(referenced as 'Data Signal:'), then the reasoning logic behind it "
-                    "(referenced as 'Reasoning:'), and conclude with the expected business impact "
-                    "(referenced as 'Expected Impact:'). "
+                    ", then the reasoning logic behind it "
+                    ", and conclude with the expected business impact "
+                    "where all of these information based on the explainability rules given "
                     "Write in plain business language. Do not use bullet points or lists within the paragraph."
                 )
             }

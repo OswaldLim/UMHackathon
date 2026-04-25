@@ -45,6 +45,28 @@ export default function Step5({ metadata, onReset }: Step5Props) {
     }
   };
 
+  const getConfidenceAccent = (score: number | null | undefined): "sage" | "amber" | "coral" | "ink" => {
+    if (score == null) return "ink";
+    if (score >= 65) return "sage";   
+    if (score >= 35) return "amber"; 
+    return "coral"; 
+  };
+
+  const getConfidenceBarClass = (score: number | null | undefined) => {
+    const accent = getConfidenceAccent(score);
+    const base = "h-3 rounded-full transition-all duration-500";
+    switch (accent) {
+      case "sage":
+        return `${base} bg-sage-500`;
+      case "amber":
+        return `${base} bg-amber-500`;
+      case "coral":
+        return `${base} bg-coral-500`;
+      default:
+        return `${base} bg-ink/30`;
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-up">
       {/* Business + data summary badge */}
@@ -147,6 +169,38 @@ export default function Step5({ metadata, onReset }: Step5Props) {
               </div>
             </OutputCard>
           )}
+          <OutputCard title="Prediction Confidence Score" accent="sky" icon="📊" delay={400}>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold">Confidence Score</span>
+                <span className="text-lg font-bold">
+                  {output?.confidence?.score !== null &&
+                  output?.confidence?.score !== undefined
+                    ? `${output.confidence.score}%`
+                    : "N/A"}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div
+                  className={getConfidenceBarClass(output?.confidence?.score)}
+                  style={{
+                    width:
+                      output?.confidence?.score != null
+                        ? `${output.confidence.score}%`
+                        : "0%",
+                  }}
+                />
+              </div>
+              <div>
+                <p className="font-semibold">Reason</p>
+                <p>
+                  {output?.confidence?.reason ??
+                    "Confidence is unavailable because insufficient data was provided."}
+                </p>
+              </div>
+
+            </div>
+          </OutputCard>
           <button onClick={onReset}
             className="w-full mt-4 border-2 border-ink/10 rounded-xl py-3 font-body text-sm text-ink/50 hover:border-ink/30 hover:text-ink transition-all duration-200">
             Start a new analysis

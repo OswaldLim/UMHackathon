@@ -50,7 +50,14 @@ RAW_SCHEMA = {
         "recommendations": {
             "type": "ARRAY",
             "items": {
-                "type": "STRING"
+                "type": "STRING",
+                "description": (
+                    "Each recommendation must be written as a structured paragraph following this example format: "
+                    "<< Example Action Title >> Based on [data signals observed], [reasoning logic explaining why this matters]. "
+                    "As a result, [expected business impact with quantification where possible]. "
+                    "The response does not need to use the exact same sentence beginnings — "
+                    "this is only a guidance template to ensure all three elements are naturally present in the paragraph."
+                )
             }
         },
 
@@ -80,6 +87,26 @@ RAW_SCHEMA = {
                 "optionB",
                 "verdict"
             ]
+        },
+
+        "confidence": {
+            "type": "OBJECT",
+            "properties": {
+                "score": {
+                    "type": "NUMBER",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "description": "Confidence score representing reliability of the prediction from 0 to 100 based on the confidence rules given."
+                },
+                "reason": {
+                    "type": "STRING",
+                    "description": "Explanation of why the confidence score was assigned, based on data completeness, quality, and reliability."
+                }
+            },
+            "required": [
+                "score",
+                "reason"
+            ]
         }
     },
 
@@ -88,7 +115,8 @@ RAW_SCHEMA = {
         "recommendations",
         "reasoning",
         "prediction",
-        "tradeoffs"
+        "tradeoffs",
+        "confidence"
     ]
 }
 

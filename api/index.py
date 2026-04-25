@@ -17,6 +17,7 @@ def read_root():
 
 @app.post("/api/ingest")
 async def ingest(file: UploadFile = File(...)):
+    print("FASTAPI HIT")
     # 1. Create a safe path for the temporary file
     # On Vercel, use /tmp/ as it's the only writable directory
     temp_file_path = f"/tmp/{file.filename}"
@@ -53,6 +54,7 @@ async def ingest(file: UploadFile = File(...)):
 
 @app.post("/api/query")
 async def handle_query(request: QueryRequest):
+    print("QUERY HIT")
     try:
         # Call your existing query_rag function
         result = rag_pipeline.query_rag(request.metadata, request.prompt)

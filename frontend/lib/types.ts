@@ -59,6 +59,7 @@ export interface AIOutput {
   reasoning: string;
   prediction: string;
   tradeoffs: { optionA: string; optionB: string; verdict: string } | null;
+  confidence: { score: number; reason: string} | null;
 }
 
 export type OnboardingStep = 1 | 2 | 3 | 4 | 5;

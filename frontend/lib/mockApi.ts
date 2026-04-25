@@ -4,7 +4,7 @@ export async function fetchInsights(
   metadata: BusinessMetadata,
   question: string
 ): Promise<AIOutput> {
-  const res = await fetch("http://localhost:8000/api/query", {
+  const res = await fetch("https://umhackathon-jm33.onrender.com/api/query", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

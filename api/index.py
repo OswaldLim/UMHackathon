@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
-from src import rag_pipeline  # Assuming your functions are in src/rag_pipeline.py
-from src import utils
+from api.src import rag_pipeline  # Assuming your functions are in src/rag_pipeline.py
+from api.src import utils
 import os
 
 app = FastAPI()

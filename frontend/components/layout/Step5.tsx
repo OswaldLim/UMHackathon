@@ -45,6 +45,28 @@ export default function Step5({ metadata, onReset }: Step5Props) {
     }
   };
 
+  const getConfidenceAccent = (score: number | null | undefined): "sage" | "amber" | "coral" | "ink" => {
+    if (score == null) return "ink";
+    if (score >= 65) return "sage";   
+    if (score >= 35) return "amber"; 
+    return "coral"; 
+  };
+
+  const getConfidenceBarClass = (score: number | null | undefined) => {
+    const accent = getConfidenceAccent(score);
+    const base = "h-3 rounded-full transition-all duration-500";
+    switch (accent) {
+      case "sage":
+        return `${base} bg-sage-500`;
+      case "amber":
+        return `${base} bg-amber-500`;
+      case "coral":
+        return `${base} bg-coral-500`;
+      default:
+        return `${base} bg-ink/30`;
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-up">
       {/* Business + data summary badge */}
@@ -149,7 +171,6 @@ export default function Step5({ metadata, onReset }: Step5Props) {
           )}
           <OutputCard title="Prediction Confidence Score" accent="sky" icon="📊" delay={400}>
             <div className="space-y-3">
-              {/* Score Row */}
               <div className="flex items-center justify-between">
                 <span className="font-semibold">Confidence Score</span>
                 <span className="text-lg font-bold">
@@ -159,11 +180,9 @@ export default function Step5({ metadata, onReset }: Step5Props) {
                     : "N/A"}
                 </span>
               </div>
-
-              {/* Progress Bar */}
               <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                 <div
-                  className="bg-sky-600 h-3 rounded-full transition-all duration-500"
+                  className={getConfidenceBarClass(output?.confidence?.score)}
                   style={{
                     width:
                       output?.confidence?.score != null
@@ -172,8 +191,6 @@ export default function Step5({ metadata, onReset }: Step5Props) {
                   }}
                 />
               </div>
-
-              {/* Reason */}
               <div>
                 <p className="font-semibold">Reason</p>
                 <p>
@@ -193,13 +210,3 @@ export default function Step5({ metadata, onReset }: Step5Props) {
     </div>
   );
 }
-
-const getConfidenceColor = (score: number) => {
-  if (score >= 75)
-    return "bg-green-600 h-3 rounded-full transition-all duration-500";
-
-  if (score >= 50)
-    return "bg-yellow-500 h-3 rounded-full transition-all duration-500";
-
-  return "bg-red-500 h-3 rounded-full transition-all duration-500";
-};

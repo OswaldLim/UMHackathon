@@ -52,12 +52,11 @@ RAW_SCHEMA = {
             "items": {
                 "type": "STRING",
                 "description": (
-                    "Each recommendation must be written as a structured paragraph in this exact format: "
-                    "Start with a bolded action title, followed by the data signals that triggered it "
-                    ", then the reasoning logic behind it "
-                    ", and conclude with the expected business impact "
-                    "where all of these information based on the explainability rules given "
-                    "Write in plain business language. Do not use bullet points, colon or lists within the paragraph."
+                    "Each recommendation must be written as a structured paragraph following this example format: "
+                    "<< Example Action Title >> Based on [data signals observed], [reasoning logic explaining why this matters]. "
+                    "As a result, [expected business impact with quantification where possible]. "
+                    "The response does not need to use the exact same sentence beginnings — "
+                    "this is only a guidance template to ensure all three elements are naturally present in the paragraph."
                 )
             }
         },

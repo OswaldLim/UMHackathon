@@ -69,6 +69,7 @@ async def handle_query(request: QueryRequest):
         result = rag_pipeline.query_rag(request.metadata, request.prompt)
         return result
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 # Note: Vercel handles the uvicorn execution automatically

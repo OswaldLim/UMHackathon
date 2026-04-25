@@ -11,3 +11,7 @@ Example of the .env file:
 ![alt text](image.png)
 
 3. Run main.py. You'll have to wait a while when running for the first time due to it downloading the QDrant embedding models but it will run smoothly afterwards.
+
+
+Presentation Deck Link
+https://www.pi.inc/docs/438852282430142?share_token=C4GGXCIN3KLIE
